@@ -279,7 +279,12 @@ function Board({ content, onCard, onStatusChange }) {
     <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
       <div style={{display:"flex",gap:12,padding:"18px 20px 14px",overflowX:"auto",height:"100%",alignItems:"flex-start"}}>
         {STATUSES.map(col=>{
-          const items=content.filter(c=>c.status===col.key);
+          const items=content.filter(c=>c.status===col.key).sort((a,b)=>{
+            if (!a.date && !b.date) return 0;
+            if (!a.date) return 1;
+            if (!b.date) return -1;
+            return a.date.localeCompare(b.date);
+          });
           return (
             <div key={col.key} style={{minWidth:222,width:222,flexShrink:0,display:"flex",flexDirection:"column",maxHeight:"100%"}}>
               <div style={{padding:"9px 12px",borderRadius:"9px 9px 0 0",display:"flex",alignItems:"center",gap:7,border:"1px solid #1f1f30",borderBottom:"none",background:"#13131e",flexShrink:0}}>
