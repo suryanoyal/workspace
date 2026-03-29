@@ -63,8 +63,8 @@ const DAYS_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const STATUSES = [
   { key:"ideation_room",              label:"Ideation",         color:"#a78bfa" },
   { key:"approved_script",            label:"Script Approved",  color:"#34d399" },
-  { key:"editing_phase",              label:"Editing Phase",    color:"#f59e0b" },
   { key:"shooting_done_post_planned", label:"Shoot Done",       color:"#fb923c" },
+  { key:"editing_phase",              label:"Editing Phase",    color:"#f59e0b" },
   { key:"to_be_published",            label:"To Be Published",  color:"#38bdf8" },
   { key:"published",                  label:"Published",        color:"#4ade80" },
 ];
