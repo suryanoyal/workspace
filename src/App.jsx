@@ -43,14 +43,6 @@ function useCloudStorage(key, initialValue) {
   return [value, setCloudValue];
 }
 
-// ─── RESET CLOUD DATA ──────────────────────────────────────────────────────
-const resetCloudData = async () => {
-  await setDoc(doc(db, "publish_os_data", "workspaces"), { value: INIT_WS });
-  await setDoc(doc(db, "publish_os_data", "allContent"), { value: INIT_CONTENT });
-  await setDoc(doc(db, "publish_os_data", "activeWsId"), { value: "ws-ucp" });
-  alert("Cloud data reset to initial values!");
-};
-
 // ─── DATA & CONSTANTS ────────────────────────────────────────────────────────
 const today = new Date();
 const fmt = (d) => d.toISOString().split("T")[0];
@@ -352,8 +344,56 @@ function CalendarView({ content, onCard }) {
   );
 }
 
+// ─── LOGIN SCREEN ────────────────────────────────────────────────────────────
+function LoginScreen({ onLogin }) {
+  const [pass, setPass] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (pass === "adlinwpeak24S#") {
+      onLogin();
+    } else {
+      setError(true);
+    }
+  };
+
+  return (
+    <div style={{display:"flex",height:"100vh",width:"100vw",alignItems:"center",justifyContent:"center",background:"#08080d",fontFamily:"'Fira Code',monospace"}}>
+      <form onSubmit={handleSubmit} style={{background:"#13131e",padding:40,borderRadius:14,border:"1px solid #2a2a3e",display:"flex",flexDirection:"column",gap:24,width:360,boxShadow:"0 24px 64px rgba(0,0,0,.6)"}}>
+        <div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontStyle:"italic",fontSize:26,color:"#ededf5",letterSpacing:"-0.01em",lineHeight:1.1,textAlign:"center"}}>
+            Noyal Surya's <span style={{color:"#7c6af7"}}>workspace</span>
+          </div>
+          <div style={{fontSize:10,color:"#7070a0",textAlign:"center",marginTop:8,letterSpacing:"0.1em",textTransform:"uppercase"}}>Restricted Access</div>
+        </div>
+        
+        <div>
+          <input
+            type="password"
+            value={pass}
+            onChange={e=>{setPass(e.target.value);setError(false);}}
+            placeholder="Enter password..."
+            style={{width:"100%",background:"#08080d",border:`1px solid ${error?"#f87171":"#1f1f30"}`,borderRadius:8,color:"#ededf5",padding:"12px 14px",fontFamily:"'Fira Code',monospace",outline:"none",fontSize:13,transition:"border .2s"}}
+            autoFocus
+          />
+          {error && <div style={{color:"#f87171",fontSize:11,marginTop:8,textAlign:"center"}}>Incorrect password</div>}
+        </div>
+        <button type="submit" style={{background:"#7c6af7",color:"#fff",border:"none",borderRadius:8,padding:"12px",cursor:"pointer",fontFamily:"'Fira Code',monospace",fontSize:13,fontWeight:500,transition:"background .15s"}}>
+          Unlock Workspace
+        </button>
+      </form>
+    </div>
+  );
+}
+
+
 // ─── APP ─────────────────────────────────────────────────────────────────────
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem("ws_auth") === "true";
+  });
+
   const [workspaces, setWorkspaces] = useCloudStorage("workspaces", INIT_WS);
   const [activeWsId, setActiveWsId] = useCloudStorage("active_ws", "ws-ucp");
   const [allContent, setAllContent] = useCloudStorage("content", INIT_CONTENT);
@@ -365,6 +405,29 @@ export default function App() {
 
   const ws = workspaces.find(w=>w.id===activeWsId);
   const content = allContent.filter(c=>c.wsId===activeWsId);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    sessionStorage.setItem("ws_auth", "true");
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem("ws_auth");
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Fira+Code:wght@300;400;500&family=Playfair+Display:ital,wght@0,600;1,400&display=swap');
+          *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+          body{background:#08080d;color:#ededf5;font-family:'Fira Code',monospace;font-size:12.5px;-webkit-font-smoothing:antialiased;overflow:hidden;}
+        `}</style>
+        <LoginScreen onLogin={handleLogin} />
+      </>
+    );
+  }
 
   const handleSave = upd => { setAllContent(prev=>prev.map(c=>c.id===upd.id?upd:c)); setModal(null); };
   const handleDelete = id => { setAllContent(prev=>prev.filter(c=>c.id!==id)); setModal(null); };
@@ -458,8 +521,8 @@ export default function App() {
             <button onClick={handleNew} style={{width:"100%",background:"#7c6af7",color:"#fff",border:"none",borderRadius:8,padding:"9px 12px",cursor:"pointer",fontFamily:"'Fira Code',monospace",fontSize:12,fontWeight:500,display:"flex",alignItems:"center",justifyContent:"center",gap:7,transition:"background .15s"}}>
               ＋ New Post
             </button>
-            <button onClick={resetCloudData} style={{width:"100%",background:"transparent",color:"#f87171",border:"1px solid #f8717140",borderRadius:8,padding:"9px 12px",cursor:"pointer",fontFamily:"'Fira Code',monospace",fontSize:12,transition:"background .15s"}}>
-              Reset Data
+            <button onClick={handleLogout} style={{width:"100%",background:"transparent",color:"#f87171",border:"1px solid #f8717140",borderRadius:8,padding:"9px 12px",cursor:"pointer",fontFamily:"'Fira Code',monospace",fontSize:12,transition:"background .15s"}}>
+              Logout
             </button>
           </div>
         </nav>
