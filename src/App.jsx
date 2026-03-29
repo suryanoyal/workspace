@@ -351,7 +351,7 @@ function LoginScreen({ onLogin }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (pass === "adlinwpeak24S#") {
+    if (pass === "leavemealone") {
       onLogin();
     } else {
       setError(true);
